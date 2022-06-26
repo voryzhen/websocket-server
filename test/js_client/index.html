@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JS Client</title>
+</head>
+<body>
+<div id="app">
+    <button onclick="send_hello()">Send Hello</button><br><br>
+    <textarea name="text" id="text" cols="30" rows="10"></textarea>
+</div>
+<script>
+    let socket = new WebSocket("ws://127.0.0.1:3030");
+    socket.onopen = function() {
+        alert("Соединение установлено.");
+    };
+
+    socket.onclose = function(event) {
+        if (event.wasClean) {
+            alert('Соединение закрыто чисто');
+        } else {
+            alert('Обрыв соединения'); // например, "убит" процесс сервера
+        }
+        alert('Код: ' + event.code + ' причина: ' + event.reason);
+    };
+
+    socket.onmessage = function(event) {
+        //alert("Получены данные " + event.data);
+        document.getElementById("text").textContent = event.data
+    };
+
+    socket.onerror = function(error) {
+        alert("Ошибка " + error.message);
+    };
+    function send_hello() {
+        //console.log("invoked")
+        //console.log(socket)
+        socket.send("Привет");
+    }
+</script>
+</body>
+</html>

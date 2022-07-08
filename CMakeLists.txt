@@ -12,4 +12,7 @@ add_executable(
 
         source/main.cpp
 
+        source/src/server.cpp
+        source/src/session.cpp
+
 )

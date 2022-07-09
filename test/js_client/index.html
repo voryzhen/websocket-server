@@ -6,7 +6,7 @@
 </head>
 <body>
 <div id="app">
-    <button onclick="send_hello()">Send Hello</button><br><br>
+    <button onclick="send_hello()">Send Hello</button><button onclick="send_cmd()">Send Command</button><br><br>
     <textarea name="text" id="text" cols="30" rows="10"></textarea>
 </div>
 <script>
@@ -36,6 +36,9 @@
         //console.log("invoked")
         //console.log(socket)
         socket.send("Привет");
+    }
+    function send_cmd() {
+        socket.send("cmd_1");
     }
 </script>
 </body>

@@ -1,42 +1,27 @@
 #pragma once
 
-#include <boost/beast/core.hpp>
-#include <boost/beast/websocket.hpp>
-#include <boost/asio/dispatch.hpp>
-#include <boost/asio/strand.hpp>
-#include <algorithm>
-#include <cstdlib>
-#include <functional>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <thread>
-#include <vector>
+#include "headers.h"
 
-#include "session.h"
+void fail(boost::beast::error_code ec, char const* what);
 
-namespace beast = boost::beast;         // from <boost/beast.hpp>
-namespace http = beast::http;           // from <boost/beast/http.hpp>
-namespace websocket = beast::websocket; // from <boost/beast/websocket.hpp>
-namespace net = boost::asio;            // from <boost/asio.hpp>
-using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
+class server : public std::enable_shared_from_this<server> {
 
-//------------------------------------------------------------------------------
+    boost::asio::io_context& ioc_;
+    boost::asio::ip::tcp::acceptor acceptor_;
 
-// Report a failure
-void fail(beast::error_code ec, char const* what);
+    void do_accept();
+    void on_accept(boost::beast::error_code ec, boost::asio::ip::tcp::socket socket);
 
-// Accepts incoming connections and launches the sessions
-class server : public std::enable_shared_from_this<server>
-{
-    net::io_context& ioc_;
-    tcp::acceptor acceptor_;
+    boost::asio::deadline_timer queue_timer_;
+
+    void check_queue();
+    void check_queue_handler();
+
+    std::queue <std::string> cmd_queue_;
 
 public:
-    server(net::io_context& ioc, tcp::endpoint endpoint);
-    // Start accepting incoming connections
+
+    server(boost::asio::io_context& ioc, boost::asio::ip::tcp::endpoint endpoint);
     void run();
-private:
-    void do_accept();
-    void on_accept(beast::error_code ec, tcp::socket socket);
+
 };

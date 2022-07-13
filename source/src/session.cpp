@@ -1,7 +1,7 @@
 #pragma once
 
 #include "session.h"
-#include "cmds.h"
+#include "server.h"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -57,7 +57,7 @@ void session::on_read(beast::error_code ec, std::size_t bytes_transferred) {
 
 void session::run_cmd(std::string& data) {
     const auto cmd = parse_cmd(data);
-    get_executor(cmd) -> execute();
+    s_ -> add_cmd(cmd, this);
 }
 
 std::string session::parse_cmd(std::string& data) {
@@ -73,4 +73,8 @@ void session::on_write(beast::error_code ec, std::size_t bytes_transferred) {
     buffer_.consume(buffer_.size());
 
     do_read();
+}
+
+void session::send_response() {
+    std::cout << "asd" << std::endl;
 }

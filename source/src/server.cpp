@@ -1,8 +1,8 @@
 #pragma once
 
 #include "server.h"
-
 #include "session.h"
+#include "cmds.h"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -62,12 +62,24 @@ void server::on_accept(beast::error_code ec, tcp::socket socket) {
     if(ec) {
         fail(ec, "accept");
     } else {
-        std::make_shared<session>(std::move(socket))->run();
+        std::make_shared<session>(std::move(socket), this)->run();
     }
 
     do_accept();
 }
 
 void server::check_queue() {
-    std::cout << "queue size: " << cmd_queue_.size() << std::endl;
+    const auto qsize = cmd_queue_.size();
+    std::cout << "queue size: " << qsize << std::endl;
+    if (qsize > 0) {
+        const auto cmd = cmd_queue_.front();
+        get_executor(cmd.first) -> execute();
+        if (cmd.second)
+            cmd.second -> send_response();
+        cmd_queue_.pop();
+    }
+}
+
+void server::add_cmd(const std::string& cmd, session* client) {
+    cmd_queue_.push({cmd, client});
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "headers.h"
+#include "session.h"
 
 void fail(boost::beast::error_code ec, char const* what);
 
@@ -17,11 +18,12 @@ class server : public std::enable_shared_from_this<server> {
     void check_queue();
     void check_queue_handler();
 
-    std::queue <std::string> cmd_queue_;
+    std::queue <std::pair<std::string, session*>> cmd_queue_;
 
 public:
 
     server(boost::asio::io_context& ioc, boost::asio::ip::tcp::endpoint endpoint);
     void run();
+    void add_cmd(const std::string& cmd, session* client);
 
 };
